@@ -1,9 +1,8 @@
-FROM node:20-alpine
+FROM node:20-slim
 
 WORKDIR /usr/src/app
 
 # 🛠 Fix Prisma engine lỗi openssl
-RUN apk add --no-cache openssl
 
 COPY package*.json ./
 RUN npm install

@@ -10,6 +10,11 @@ export class RegisterDto {
   @IsString()
   @MinLength(6)
   password!: string;
+
+  @ApiProperty({ example: 'tat dev' })
+  @IsString()
+  @MinLength(1)
+  name!: string;
 }
 
 export class LoginDto {

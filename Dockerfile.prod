@@ -1,18 +1,38 @@
+# Stage 1: Builder
 FROM node:20-alpine AS builder
+
 WORKDIR /usr/src/app
-RUN apk add --no-cache openssl
+
+# Cài gói cần thiết để build native modules nếu có
+RUN apk add --no-cache python3 make g++
+
 COPY package*.json ./
+
+# Cài cả devDependencies để build
 RUN npm install
+
 COPY . .
+
+# Build dự án NestJS
 RUN npm run build
 
-FROM node:20-alpine
+# Stage 2: Runner (Production)
+FROM node:20-alpine AS runner
+
 WORKDIR /usr/src/app
-RUN apk add --no-cache openssl
+
+# Chỉ copy package.json và lockfile
 COPY package*.json ./
+
+# Cài dependencies production (không cần devDeps)
 RUN npm install --omit=dev
+
+# Copy dist từ builder stage
 COPY --from=builder /usr/src/app/dist ./dist
 COPY --from=builder /usr/src/app/prisma ./prisma
-RUN npx prisma generate
+
+# Mở port 3000
 EXPOSE 3000
-CMD ["node", "dist/main.js"]
+
+# Chạy production
+CMD ["npm", "run", "start:prod"]

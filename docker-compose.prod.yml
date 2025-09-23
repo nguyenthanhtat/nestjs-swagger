@@ -1,32 +1,37 @@
-version: '3.9'
+version: "3.8"
 
 services:
-  postgres:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.prod
+    container_name: nest_auth_app_prod
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: "postgresql://postgres:postgres@db:5432/nest_auth_prod?schema=public"
+    depends_on:
+      - db
+
+  db:
     image: postgres:15
     container_name: nest_postgres_prod
     restart: always
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: nestauth
+      POSTGRES_DB: nest_auth_prod
+    ports:
+      - "5432:5432"
     volumes:
       - postgres_data_prod:/var/lib/postgresql/data
 
-  app:
-    build:
-      context: .
-      dockerfile: Dockerfile.prod
-    container_name: nest_auth_app_prod
-    depends_on:
-      - postgres
-    environment:
-      DATABASE_URL: "postgresql://postgres:postgres@postgres:5432/nestauth?schema=public"
-      JWT_SECRET: "super-secret"
-      JWT_REFRESH_SECRET: "refresh-secret"
-      PORT: 3000
+  adminer:
+    image: adminer
+    restart: always
     ports:
-      - "3000:3000"
-    command: sh -c "npx prisma migrate deploy && node dist/main.js"
+      - "8080:8080"
 
 volumes:
   postgres_data_prod:

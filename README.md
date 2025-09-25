@@ -63,6 +63,9 @@ Khi thay đổi prisma/schema.prisma, tạo migration mới:
 
 bash
 Copy code
+docker-compose -f docker-compose.dev.yml exec app npx prisma generate
+docker-compose -f docker-compose.dev.yml exec app npx prisma migrate dev --name init
+
 docker-compose -f docker-compose.dev.yml exec app npx prisma migrate dev --name init
 Mở Prisma Studio để quản lý DB qua UI:
 
